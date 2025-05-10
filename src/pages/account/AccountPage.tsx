@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ref, onValue, remove } from 'firebase/database';
-import { MessageSquare, BarChart, LightbulbIcon, Scale, Trash2 } from 'lucide-react';
+import { MessageSquare, BarChart, LightbulbIcon, Scale, Trash2, User } from 'lucide-react';
 import { db } from '../../lib/firebase';
 import { useAuth } from '../../contexts/AuthContext';
 import PageHeader from '../../components/ui/PageHeader';
@@ -329,7 +329,7 @@ const AccountPage: React.FC = () => {
                               <p>B: {wyr.optionB} ({wyr.votesB} votes)</p>
                             </div>
                             <p className="text-sm text-gray-500 mt-1">
-                              {new Date(wyr.createdAt).toLocaleDateString()} • {wyr.comments.length} comments
+                              {new Date(wyr.createdAt).toLocaleDateString()} • {wyr.comments?.length || 0} comments
                             </p>
                           </div>
                           <button
