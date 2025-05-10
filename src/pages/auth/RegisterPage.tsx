@@ -48,8 +48,12 @@ const RegisterPage: React.FC = () => {
       setLoading(true);
       await loginWithGoogle();
       navigate('/');
-    } catch (error) {
-      setError('Failed to register with Google');
+    } catch (error: any) {
+      if (error.code === 'auth/popup-blocked') {
+        setError('Please disable your popup blocker and try again. The Google sign-in requires a popup window.');
+      } else {
+        setError('Failed to register with Google');
+      }
       console.error(error);
     } finally {
       setLoading(false);
