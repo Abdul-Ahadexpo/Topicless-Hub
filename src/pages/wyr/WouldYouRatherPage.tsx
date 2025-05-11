@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ref, push, onValue, set, update } from 'firebase/database';
 import { v4 as uuidv4 } from 'uuid';
-import { Scale, MessageSquare, Send, Plus, X } from 'lucide-react';
+import { Scale, MessageSquare, Send, Plus, X, ChevronDown, ChevronUp } from 'lucide-react';
 import { db } from '../../lib/firebase';
 import { useAuth } from '../../contexts/AuthContext';
 import PageHeader from '../../components/ui/PageHeader';
