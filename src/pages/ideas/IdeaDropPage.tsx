@@ -43,8 +43,8 @@ const IdeaDropPage: React.FC = () => {
         const authors = new Map<string, {id: string, name: string, score: number}>();
         
         ideasList.forEach(idea => {
-          const fireCount = Object.keys(idea.reactions['🔥'] || {}).length;
-          const thoughtCount = Object.keys(idea.reactions['💭'] || {}).length;
+          const fireCount = Object.keys(idea.reactions?.['🔥'] || {}).length;
+          const thoughtCount = Object.keys(idea.reactions?.['💭'] || {}).length;
           const score = fireCount + thoughtCount;
           
           if (authors.has(idea.authorId)) {
@@ -113,7 +113,7 @@ const IdeaDropPage: React.FC = () => {
       if (!idea) return;
       
       const reactionPath = `ideas/${ideaId}/reactions/${reactionType}/${currentUser.uid}`;
-      const hasReacted = idea.reactions[reactionType][currentUser.uid];
+      const hasReacted = idea.reactions?.[reactionType]?.[currentUser.uid];
       
       await set(ref(db, reactionPath), hasReacted ? null : true);
     } catch (error) {
@@ -133,8 +133,8 @@ const IdeaDropPage: React.FC = () => {
       return [...ideas].sort((a, b) => b.createdAt - a.createdAt);
     } else { // popular
       return [...ideas].sort((a, b) => {
-        const aReactions = Object.keys(a.reactions['🔥'] || {}).length + Object.keys(a.reactions['💭'] || {}).length;
-        const bReactions = Object.keys(b.reactions['🔥'] || {}).length + Object.keys(b.reactions['💭'] || {}).length;
+        const aReactions = Object.keys(a.reactions?.['🔥'] || {}).length + Object.keys(a.reactions?.['💭'] || {}).length;
+        const bReactions = Object.keys(b.reactions?.['🔥'] || {}).length + Object.keys(b.reactions?.['💭'] || {}).length;
         return bReactions - aReactions;
       });
     }
@@ -281,10 +281,10 @@ const IdeaDropPage: React.FC = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {getSortedIdeas().map((idea) => {
-              const fireCount = Object.keys(idea.reactions['🔥'] || {}).length;
-              const thoughtCount = Object.keys(idea.reactions['💭'] || {}).length;
-              const userFired = currentUser && idea.reactions['🔥'][currentUser.uid];
-              const userThought = currentUser && idea.reactions['💭'][currentUser.uid];
+              const fireCount = Object.keys(idea.reactions?.['🔥'] || {}).length;
+              const thoughtCount = Object.keys(idea.reactions?.['💭'] || {}).length;
+              const userFired = currentUser && idea.reactions?.['🔥']?.[currentUser.uid];
+              const userThought = currentUser && idea.reactions?.['💭']?.[currentUser.uid];
               
               return (
                 <div key={idea.id} className="card p-4">
