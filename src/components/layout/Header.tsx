@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, LogIn, LogOut, User, Home, MessageSquare, BarChart, LightbulbIcon, Scale } from 'lucide-react';
+import { Menu, X, LogIn, LogOut, User, Home, MessageSquare, BarChart, LightbulbIcon, Scale, Shield } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showAdminLogin, setShowAdminLogin] = useState(false);
+  const [adminPassword, setAdminPassword] = useState('');
+  const [isAdmin, setIsAdmin] = useState(false);
   const { currentUser, logout } = useAuth();
   const location = useLocation();
 
@@ -20,8 +23,20 @@ const Header: React.FC = () => {
     try {
       await logout();
       setIsMenuOpen(false);
+      setIsAdmin(false);
     } catch (error) {
       console.error('Failed to log out:', error);
+    }
+  };
+
+  const handleAdminLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (adminPassword === 'Niharuka2918') {
+      setIsAdmin(true);
+      setShowAdminLogin(false);
+      setAdminPassword('');
+    } else {
+      alert('Incorrect admin password');
     }
   };
 
@@ -30,7 +45,7 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="bg-white shadow-sm sticky top-0 z-10">
+    <header className="bg-white shadow-sm sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
@@ -45,7 +60,7 @@ const Header: React.FC = () => {
               <Link
                 key={item.name}
                 to={item.path}
-                className={`px-3 py-2 text-sm font-medium rounded-md flex items-center space-x-2 ${
+                className={`px-3 py-2 text-sm font-medium rounded-md flex items-center space-x-2 transition-colors ${
                   location.pathname === item.path
                     ? 'text-primary-700 bg-primary-50'
                     : 'text-gray-700 hover:text-primary-600 hover:bg-gray-50'
@@ -55,6 +70,22 @@ const Header: React.FC = () => {
                 <span>{item.name}</span>
               </Link>
             ))}
+            
+            {/* Admin Button */}
+            {!isAdmin ? (
+              <button
+                onClick={() => setShowAdminLogin(true)}
+                className="btn btn-outline flex items-center space-x-2 text-sm"
+              >
+                <Shield size={16} />
+                <span>Admin</span>
+              </button>
+            ) : (
+              <Link to="/admin" className="btn btn-accent flex items-center space-x-2 text-sm">
+                <Shield size={16} />
+                <span>Admin Panel</span>
+              </Link>
+            )}
             
             {currentUser ? (
               <div className="flex items-center space-x-4">
@@ -107,6 +138,30 @@ const Header: React.FC = () => {
                 <span>{item.name}</span>
               </Link>
             ))}
+            
+            {/* Mobile Admin Button */}
+            {!isAdmin ? (
+              <button
+                onClick={() => {
+                  setShowAdminLogin(true);
+                  setIsMenuOpen(false);
+                }}
+                className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-50 flex items-center space-x-2"
+              >
+                <Shield size={18} />
+                <span>Admin</span>
+              </button>
+            ) : (
+              <Link
+                to="/admin"
+                className="block px-3 py-2 rounded-md text-base font-medium text-accent-600 hover:text-accent-700 hover:bg-accent-50 flex items-center space-x-2"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <Shield size={18} />
+                <span>Admin Panel</span>
+              </Link>
+            )}
+            
             {currentUser ? (
               <>
                 <Link
@@ -135,6 +190,51 @@ const Header: React.FC = () => {
                 <span>Sign In</span>
               </Link>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Admin Login Modal */}
+      {showAdminLogin && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold">Admin Login</h2>
+              <button
+                onClick={() => setShowAdminLogin(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <form onSubmit={handleAdminLogin}>
+              <div className="mb-4">
+                <label htmlFor="adminPassword" className="label">
+                  Admin Password
+                </label>
+                <input
+                  id="adminPassword"
+                  type="password"
+                  value={adminPassword}
+                  onChange={(e) => setAdminPassword(e.target.value)}
+                  className="input"
+                  placeholder="Enter admin password"
+                  required
+                />
+              </div>
+              <div className="flex justify-end space-x-3">
+                <button
+                  type="button"
+                  onClick={() => setShowAdminLogin(false)}
+                  className="btn btn-outline"
+                >
+                  Cancel
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  Login
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
