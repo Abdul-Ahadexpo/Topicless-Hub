@@ -7,6 +7,19 @@ export interface User {
   createdAt: number;
   streakCount?: number;
   lastActiveDate?: string;
+  isAdmin?: boolean;
+}
+
+// Admin post types
+export interface AdminPost {
+  id: string;
+  title: string;
+  content: string;
+  youtubeUrl?: string;
+  authorId: string;
+  authorName: string;
+  createdAt: number;
+  featured: boolean;
 }
 
 // Question Storm types
@@ -17,6 +30,7 @@ export interface Question {
   authorName: string;
   createdAt: number;
   answerCount: number;
+  updatedAt?: number;
 }
 
 export interface Answer {
@@ -44,6 +58,7 @@ export interface Poll {
   createdAt: number;
   voteCount: number;
   gifUrl?: string;
+  updatedAt?: number;
 }
 
 export interface PollOption {
@@ -71,6 +86,7 @@ export interface Idea {
     '🔥': { [userId: string]: boolean };
     '💭': { [userId: string]: boolean };
   };
+  updatedAt?: number;
 }
 
 // Would You Rather types
@@ -84,6 +100,7 @@ export interface WouldYouRather {
   votesA: number;
   votesB: number;
   comments: Comment[];
+  updatedAt?: number;
 }
 
 export interface WyrVote {
