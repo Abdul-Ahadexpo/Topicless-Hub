@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { ref, onValue, remove } from 'firebase/database';
-import { MessageSquare, BarChart, LightbulbIcon, Scale, Trash2, User } from 'lucide-react';
+import { ref, onValue, remove, update } from 'firebase/database';
+import { MessageSquare, BarChart, LightbulbIcon, Scale, Trash2, User, Edit } from 'lucide-react';
 import { db } from '../../lib/firebase';
 import { useAuth } from '../../contexts/AuthContext';
 import PageHeader from '../../components/ui/PageHeader';
 import AuthRequired from '../../components/ui/AuthRequired';
 import EmptyState from '../../components/ui/EmptyState';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
+import EditModal from '../../components/ui/EditModal';
 import { Question, Poll, Idea, WouldYouRather } from '../../lib/types';
 
 const AccountPage: React.FC = () => {
@@ -17,6 +18,17 @@ const AccountPage: React.FC = () => {
   const [wyrQuestions, setWyrQuestions] = useState<WouldYouRather[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('questions');
+  const [editModal, setEditModal] = useState<{
+    isOpen: boolean;
+    type: 'question' | 'poll' | 'idea' | 'wyr';
+    data: any;
+    id: string;
+  }>({
+    isOpen: false,
+    type: 'question',
+    data: null,
+    id: '',
+  });
 
   useEffect(() => {
     if (!currentUser) return;
@@ -118,6 +130,46 @@ const AccountPage: React.FC = () => {
     }
   };
 
+  const handleEdit = (type: 'question' | 'poll' | 'idea' | 'wyr', item: any) => {
+    setEditModal({
+      isOpen: true,
+      type,
+      data: item,
+      id: item.id,
+    });
+  };
+
+  const handleSaveEdit = async (updatedData: any) => {
+    if (!currentUser) return;
+    
+    try {
+      let path = '';
+      switch (editModal.type) {
+        case 'question':
+          path = `questions/${editModal.id}`;
+          break;
+        case 'poll':
+          path = `polls/${editModal.id}`;
+          break;
+        case 'idea':
+          path = `ideas/${editModal.id}`;
+          break;
+        case 'wyr':
+          path = `wyr_questions/${editModal.id}`;
+          break;
+        default:
+          return;
+      }
+      
+      await update(ref(db, path), {
+        ...updatedData,
+        updatedAt: Date.now(),
+      });
+    } catch (error) {
+      console.error('Error updating item:', error);
+    }
+  };
+
   return (
     <AuthRequired>
       <PageHeader
@@ -131,10 +183,10 @@ const AccountPage: React.FC = () => {
       ) : (
         <div>
           <div className="border-b border-gray-200 mb-6">
-            <nav className="flex -mb-px space-x-8">
+            <nav className="flex -mb-px space-x-4 md:space-x-8 overflow-x-auto">
               <button
                 onClick={() => setActiveTab('questions')}
-                className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center ${
+                className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center whitespace-nowrap ${
                   activeTab === 'questions'
                     ? 'border-primary-500 text-primary-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -148,7 +200,7 @@ const AccountPage: React.FC = () => {
               </button>
               <button
                 onClick={() => setActiveTab('polls')}
-                className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center ${
+                className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center whitespace-nowrap ${
                   activeTab === 'polls'
                     ? 'border-primary-500 text-primary-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -162,7 +214,7 @@ const AccountPage: React.FC = () => {
               </button>
               <button
                 onClick={() => setActiveTab('ideas')}
-                className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center ${
+                className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center whitespace-nowrap ${
                   activeTab === 'ideas'
                     ? 'border-primary-500 text-primary-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -176,7 +228,7 @@ const AccountPage: React.FC = () => {
               </button>
               <button
                 onClick={() => setActiveTab('wyr')}
-                className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center ${
+                className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center whitespace-nowrap ${
                   activeTab === 'wyr'
                     ? 'border-primary-500 text-primary-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -205,19 +257,31 @@ const AccountPage: React.FC = () => {
                     {questions.map((question) => (
                       <div key={question.id} className="card p-4">
                         <div className="flex justify-between">
-                          <div>
-                            <h3 className="font-medium">{question.text}</h3>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-medium break-words">{question.text}</h3>
                             <p className="text-sm text-gray-500 mt-1">
                               {new Date(question.createdAt).toLocaleDateString()} • {question.answerCount} answers
+                              {question.updatedAt && (
+                                <span className="ml-2 text-xs">(edited)</span>
+                              )}
                             </p>
                           </div>
-                          <button
-                            onClick={() => handleDelete('question', question.id)}
-                            className="text-gray-400 hover:text-error-600"
-                            title="Delete question"
-                          >
-                            <Trash2 size={18} />
-                          </button>
+                          <div className="flex space-x-2 ml-4">
+                            <button
+                              onClick={() => handleEdit('question', question)}
+                              className="text-gray-400 hover:text-primary-600"
+                              title="Edit question"
+                            >
+                              <Edit size={18} />
+                            </button>
+                            <button
+                              onClick={() => handleDelete('question', question.id)}
+                              className="text-gray-400 hover:text-error-600"
+                              title="Delete question"
+                            >
+                              <Trash2 size={18} />
+                            </button>
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -239,10 +303,13 @@ const AccountPage: React.FC = () => {
                     {polls.map((poll) => (
                       <div key={poll.id} className="card p-4">
                         <div className="flex justify-between">
-                          <div>
-                            <h3 className="font-medium">{poll.question}</h3>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-medium break-words">{poll.question}</h3>
                             <p className="text-sm text-gray-500 mt-1">
                               {new Date(poll.createdAt).toLocaleDateString()} • {poll.voteCount} votes
+                              {poll.updatedAt && (
+                                <span className="ml-2 text-xs">(edited)</span>
+                              )}
                             </p>
                             <div className="mt-2 space-y-1">
                               {poll.options.map((option) => (
@@ -252,13 +319,22 @@ const AccountPage: React.FC = () => {
                               ))}
                             </div>
                           </div>
-                          <button
-                            onClick={() => handleDelete('poll', poll.id)}
-                            className="text-gray-400 hover:text-error-600"
-                            title="Delete poll"
-                          >
-                            <Trash2 size={18} />
-                          </button>
+                          <div className="flex space-x-2 ml-4">
+                            <button
+                              onClick={() => handleEdit('poll', poll)}
+                              className="text-gray-400 hover:text-primary-600"
+                              title="Edit poll"
+                            >
+                              <Edit size={18} />
+                            </button>
+                            <button
+                              onClick={() => handleDelete('poll', poll.id)}
+                              className="text-gray-400 hover:text-error-600"
+                              title="Delete poll"
+                            >
+                              <Trash2 size={18} />
+                            </button>
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -280,27 +356,39 @@ const AccountPage: React.FC = () => {
                     {ideas.map((idea) => (
                       <div key={idea.id} className="card p-4">
                         <div className="flex justify-between">
-                          <div>
-                            <h3 className="font-medium">{idea.text}</h3>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-medium break-words">{idea.text}</h3>
                             <p className="text-sm text-gray-500 mt-1">
                               {new Date(idea.createdAt).toLocaleDateString()}
+                              {idea.updatedAt && (
+                                <span className="ml-2 text-xs">(edited)</span>
+                              )}
                             </p>
                             <div className="mt-2 flex space-x-4">
                               <span className="text-sm flex items-center">
-                                🔥 {Object.keys(idea.reactions['🔥'] || {}).length}
+                                🔥 {Object.keys(idea.reactions?.['🔥'] || {}).length}
                               </span>
                               <span className="text-sm flex items-center">
-                                💭 {Object.keys(idea.reactions['💭'] || {}).length}
+                                💭 {Object.keys(idea.reactions?.['💭'] || {}).length}
                               </span>
                             </div>
                           </div>
-                          <button
-                            onClick={() => handleDelete('idea', idea.id)}
-                            className="text-gray-400 hover:text-error-600"
-                            title="Delete idea"
-                          >
-                            <Trash2 size={18} />
-                          </button>
+                          <div className="flex space-x-2 ml-4">
+                            <button
+                              onClick={() => handleEdit('idea', idea)}
+                              className="text-gray-400 hover:text-primary-600"
+                              title="Edit idea"
+                            >
+                              <Edit size={18} />
+                            </button>
+                            <button
+                              onClick={() => handleDelete('idea', idea.id)}
+                              className="text-gray-400 hover:text-error-600"
+                              title="Delete idea"
+                            >
+                              <Trash2 size={18} />
+                            </button>
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -322,23 +410,35 @@ const AccountPage: React.FC = () => {
                     {wyrQuestions.map((wyr) => (
                       <div key={wyr.id} className="card p-4">
                         <div className="flex justify-between">
-                          <div>
+                          <div className="flex-1 min-w-0">
                             <h3 className="font-medium">Would you rather...</h3>
                             <div className="mt-2 space-y-2">
-                              <p>A: {wyr.optionA} ({wyr.votesA} votes)</p>
-                              <p>B: {wyr.optionB} ({wyr.votesB} votes)</p>
+                              <p className="break-words">A: {wyr.optionA} ({wyr.votesA} votes)</p>
+                              <p className="break-words">B: {wyr.optionB} ({wyr.votesB} votes)</p>
                             </div>
                             <p className="text-sm text-gray-500 mt-1">
                               {new Date(wyr.createdAt).toLocaleDateString()} • {wyr.comments?.length || 0} comments
+                              {wyr.updatedAt && (
+                                <span className="ml-2 text-xs">(edited)</span>
+                              )}
                             </p>
                           </div>
-                          <button
-                            onClick={() => handleDelete('wyr', wyr.id)}
-                            className="text-gray-400 hover:text-error-600"
-                            title="Delete question"
-                          >
-                            <Trash2 size={18} />
-                          </button>
+                          <div className="flex space-x-2 ml-4">
+                            <button
+                              onClick={() => handleEdit('wyr', wyr)}
+                              className="text-gray-400 hover:text-primary-600"
+                              title="Edit question"
+                            >
+                              <Edit size={18} />
+                            </button>
+                            <button
+                              onClick={() => handleDelete('wyr', wyr.id)}
+                              className="text-gray-400 hover:text-error-600"
+                              title="Delete question"
+                            >
+                              <Trash2 size={18} />
+                            </button>
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -349,6 +449,15 @@ const AccountPage: React.FC = () => {
           </div>
         </div>
       )}
+
+      <EditModal
+        isOpen={editModal.isOpen}
+        onClose={() => setEditModal({ ...editModal, isOpen: false })}
+        onSave={handleSaveEdit}
+        title={`Edit ${editModal.type}`}
+        initialData={editModal.data}
+        type={editModal.type}
+      />
     </AuthRequired>
   );
 };
