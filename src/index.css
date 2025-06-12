@@ -16,15 +16,15 @@
   }
   
   h1 {
-    @apply text-3xl sm:text-4xl;
+    @apply text-2xl sm:text-3xl md:text-4xl;
   }
   
   h2 {
-    @apply text-2xl sm:text-3xl;
+    @apply text-xl sm:text-2xl md:text-3xl;
   }
   
   h3 {
-    @apply text-xl sm:text-2xl;
+    @apply text-lg sm:text-xl md:text-2xl;
   }
   
   p {
@@ -34,7 +34,7 @@
 
 @layer components {
   .btn {
-    @apply px-4 py-2 rounded-md font-medium transition-all duration-200;
+    @apply px-3 py-2 md:px-4 md:py-2 rounded-md font-medium transition-all duration-200 text-sm md:text-base;
   }
   
   .btn-primary {
@@ -58,10 +58,124 @@
   }
   
   .input {
-    @apply w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500;
+    @apply w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm md:text-base;
   }
   
   .label {
     @apply block text-sm font-medium text-gray-700 mb-1;
+  }
+
+  /* Mobile-first responsive utilities */
+  .mobile-padding {
+    @apply px-4 sm:px-6 lg:px-8;
+  }
+
+  .mobile-text {
+    @apply text-sm sm:text-base;
+  }
+
+  .mobile-heading {
+    @apply text-lg sm:text-xl md:text-2xl;
+  }
+
+  /* Improved mobile touch targets */
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
+
+  /* Better mobile spacing */
+  .mobile-space-y {
+    @apply space-y-3 sm:space-y-4 md:space-y-6;
+  }
+
+  .mobile-space-x {
+    @apply space-x-2 sm:space-x-3 md:space-x-4;
+  }
+}
+
+@layer utilities {
+  /* Custom scrollbar for mobile */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(156 163 175) transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    height: 4px;
+    width: 4px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: rgb(156 163 175);
+    border-radius: 2px;
+  }
+
+  /* Mobile-friendly animations */
+  @media (prefers-reduced-motion: no-preference) {
+    .animate-fade-in {
+      animation: fadeIn 0.3s ease-in-out;
+    }
+    
+    .animate-slide-up {
+      animation: slideUp 0.2s ease-out;
+    }
+  }
+
+  /* Ensure text doesn't break layout on mobile */
+  .break-words {
+    word-wrap: break-word;
+    word-break: break-word;
+    hyphens: auto;
+  }
+
+  /* Mobile-optimized focus states */
+  .focus-visible:focus-visible {
+    @apply outline-2 outline-offset-2 outline-primary-500;
+  }
+}
+
+/* Mobile-specific improvements */
+@media (max-width: 768px) {
+  /* Improve touch targets */
+  button, a, input, textarea, select {
+    min-height: 44px;
+  }
+
+  /* Better mobile typography */
+  .card {
+    @apply mx-2;
+  }
+
+  /* Optimize modal sizing for mobile */
+  .modal-content {
+    @apply max-h-[90vh] overflow-y-auto;
+  }
+
+  /* Improve form spacing on mobile */
+  .form-group {
+    @apply mb-4;
+  }
+
+  /* Better mobile navigation */
+  .mobile-nav {
+    @apply overflow-x-auto scrollbar-thin;
+  }
+}
+
+/* Tablet optimizations */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .tablet-grid {
+    @apply grid-cols-2;
+  }
+}
+
+/* Desktop optimizations */
+@media (min-width: 1024px) {
+  .desktop-grid {
+    @apply grid-cols-3;
   }
 }

@@ -10,6 +10,7 @@ import QuestionStormPage from './pages/questions/QuestionStormPage';
 import PollWarPage from './pages/polls/PollWarPage';
 import IdeaDropPage from './pages/ideas/IdeaDropPage';
 import WouldYouRatherPage from './pages/wyr/WouldYouRatherPage';
+import AdminPage from './pages/admin/AdminPage';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
             <Route path="/polls" element={<PollWarPage />} />
             <Route path="/ideas" element={<IdeaDropPage />} />
             <Route path="/wyr" element={<WouldYouRatherPage />} />
+            <Route path="/admin" element={<AdminPage />} />
           </Routes>
         </Layout>
       </AuthProvider>
