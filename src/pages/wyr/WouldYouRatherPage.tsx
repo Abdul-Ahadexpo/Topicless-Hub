@@ -191,11 +191,11 @@ const WouldYouRatherPage: React.FC = () => {
   };
 
   return (
-    <div>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
       <PageHeader
         title="Would You Rather"
         description="Create and vote on difficult choices, then explain your reasoning."
-        icon={<Scale className="h-6 w-6 text-primary-600" />}
+        icon={<Scale className="h-6 w-6 text-primary-600 dark:text-primary-400" />}
       />
 
       {/* Create question button/form */}
@@ -210,12 +210,12 @@ const WouldYouRatherPage: React.FC = () => {
             Create New Question
           </button>
         ) : (
-          <div className="card p-6 animate-fade-in">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 animate-fade-in">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold">Create "Would You Rather" Question</h2>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Create "Would You Rather" Question</h2>
               <button
                 onClick={() => setShowCreateForm(false)}
-                className="text-gray-500 hover:text-gray-700"
+                className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
               >
                 <X size={20} />
               </button>
@@ -223,7 +223,7 @@ const WouldYouRatherPage: React.FC = () => {
             
             <form onSubmit={handleCreateQuestion}>
               <div className="text-center mb-4">
-                <h3 className="text-lg font-medium">Would you rather...</h3>
+                <h3 className="text-lg font-medium text-gray-900 dark:text-white">Would you rather...</h3>
               </div>
               
               <div className="mb-4">
@@ -242,7 +242,7 @@ const WouldYouRatherPage: React.FC = () => {
               </div>
               
               <div className="text-center my-2">
-                <span className="text-gray-500">OR</span>
+                <span className="text-gray-500 dark:text-gray-400">OR</span>
               </div>
               
               <div className="mb-6">
@@ -283,7 +283,7 @@ const WouldYouRatherPage: React.FC = () => {
 
       {/* Questions list */}
       <div className="space-y-6">
-        <h2 className="text-xl font-semibold mb-4">Choose Wisely</h2>
+        <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Choose Wisely</h2>
         
         {loading ? (
           <LoadingSpinner text="Loading questions..." />
@@ -302,16 +302,16 @@ const WouldYouRatherPage: React.FC = () => {
               const userVote = userVotes[question.id];
               
               return (
-                <div key={question.id} className="card overflow-visible">
+                <div key={question.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-visible">
                   <div className="p-6">
                     <div className="flex justify-between items-start mb-6">
                       <div>
-                        <h3 className="font-medium text-lg">Would you rather...</h3>
-                        <p className="text-sm text-gray-500">
+                        <h3 className="font-medium text-lg text-gray-900 dark:text-white">Would you rather...</h3>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
                           Created by {question.authorName} • {new Date(question.createdAt).toLocaleDateString()}
                         </p>
                       </div>
-                      <div className="bg-primary-50 text-primary-700 rounded-full px-3 py-1 text-sm">
+                      <div className="bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 rounded-full px-3 py-1 text-sm">
                         {totalVotes} {totalVotes === 1 ? 'vote' : 'votes'}
                       </div>
                     </div>
@@ -321,22 +321,22 @@ const WouldYouRatherPage: React.FC = () => {
                       <button
                         onClick={() => handleVote(question.id, 'A')}
                         disabled={!currentUser}
-                        className={`p-4 rounded-lg text-center transition-all ${
+                        className={`p-4 rounded-lg text-center transition-all border-2 ${
                           userVote === 'A'
-                            ? 'bg-primary-100 border-2 border-primary-500'
-                            : 'bg-gray-50 border border-gray-200 hover:bg-gray-100'
+                            ? 'bg-primary-50 dark:bg-primary-900/20 border-primary-500 dark:border-primary-400'
+                            : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600'
                         }`}
                       >
-                        <p className="font-medium mb-2">{question.optionA}</p>
+                        <p className="font-medium mb-2 text-gray-900 dark:text-white">{question.optionA}</p>
                         {userVote && (
                           <div className="mt-2">
-                            <div className="w-full bg-gray-200 rounded-full h-2.5">
+                            <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2.5">
                               <div
-                                className="bg-primary-600 h-2.5 rounded-full"
+                                className="bg-primary-600 dark:bg-primary-500 h-2.5 rounded-full transition-all duration-300"
                                 style={{ width: `${percentA}%` }}
                               ></div>
                             </div>
-                            <p className="text-sm mt-1">
+                            <p className="text-sm mt-1 text-gray-700 dark:text-gray-300">
                               {percentA}% ({question.votesA} votes)
                             </p>
                           </div>
@@ -347,22 +347,22 @@ const WouldYouRatherPage: React.FC = () => {
                       <button
                         onClick={() => handleVote(question.id, 'B')}
                         disabled={!currentUser}
-                        className={`p-4 rounded-lg text-center transition-all ${
+                        className={`p-4 rounded-lg text-center transition-all border-2 ${
                           userVote === 'B'
-                            ? 'bg-primary-100 border-2 border-primary-500'
-                            : 'bg-gray-50 border border-gray-200 hover:bg-gray-100'
+                            ? 'bg-primary-50 dark:bg-primary-900/20 border-primary-500 dark:border-primary-400'
+                            : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600'
                         }`}
                       >
-                        <p className="font-medium mb-2">{question.optionB}</p>
+                        <p className="font-medium mb-2 text-gray-900 dark:text-white">{question.optionB}</p>
                         {userVote && (
                           <div className="mt-2">
-                            <div className="w-full bg-gray-200 rounded-full h-2.5">
+                            <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2.5">
                               <div
-                                className="bg-primary-600 h-2.5 rounded-full"
+                                className="bg-primary-600 dark:bg-primary-500 h-2.5 rounded-full transition-all duration-300"
                                 style={{ width: `${percentB}%` }}
                               ></div>
                             </div>
-                            <p className="text-sm mt-1">
+                            <p className="text-sm mt-1 text-gray-700 dark:text-gray-300">
                               {percentB}% ({question.votesB} votes)
                             </p>
                           </div>
@@ -371,22 +371,22 @@ const WouldYouRatherPage: React.FC = () => {
                     </div>
 
                     {!currentUser ? (
-                      <div className="text-center py-2 bg-gray-50 rounded-lg">
-                        <p className="text-gray-600 text-sm">
-                          <a href="/login" className="text-primary-600 font-medium">
+                      <div className="text-center py-2 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                        <p className="text-gray-600 dark:text-gray-300 text-sm">
+                          <a href="/login" className="text-primary-600 dark:text-primary-400 font-medium">
                             Sign in
                           </a> to vote and comment
                         </p>
                       </div>
                     ) : !userVote ? (
-                      <p className="text-center text-sm text-gray-600">
+                      <p className="text-center text-sm text-gray-600 dark:text-gray-400">
                         Vote to see results and leave a comment
                       </p>
                     ) : (
                       <div>
                         <button
                           onClick={() => toggleExpandQuestion(question.id)}
-                          className="flex items-center justify-center w-full py-2 text-primary-600 hover:text-primary-700"
+                          className="flex items-center justify-center w-full py-2 text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300"
                         >
                           <MessageSquare size={18} className="mr-2" />
                           {question.comments?.length || 0} comments
@@ -398,21 +398,21 @@ const WouldYouRatherPage: React.FC = () => {
                         </button>
 
                         {expandedQuestion === question.id && (
-                          <div className="mt-4 pt-4 border-t border-gray-200">
+                          <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
                             {/* Comments list */}
                             {question.comments && question.comments.length > 0 ? (
                               <div className="space-y-3 mb-4">
                                 {question.comments.map((comment) => (
-                                  <div key={comment.id} className="bg-gray-50 rounded-lg p-3">
-                                    <p>{comment.text}</p>
+                                  <div key={comment.id} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+                                    <p className="text-gray-900 dark:text-gray-100">{comment.text}</p>
                                     <div className="flex justify-between items-center mt-2">
-                                      <span className="text-sm text-gray-500">
+                                      <span className="text-sm text-gray-500 dark:text-gray-400">
                                         {comment.authorName} • {new Date(comment.createdAt).toLocaleDateString()}
                                       </span>
                                       <span className={`text-xs px-2 py-1 rounded ${
                                         comment.choice === 'A'
-                                          ? 'bg-blue-100 text-blue-800'
-                                          : 'bg-green-100 text-green-800'
+                                          ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300'
+                                          : 'bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-300'
                                       }`}>
                                         Chose {comment.choice === 'A' ? 'First' : 'Second'} Option
                                       </span>
@@ -421,7 +421,7 @@ const WouldYouRatherPage: React.FC = () => {
                                 ))}
                               </div>
                             ) : (
-                              <p className="text-gray-500 text-center py-2">No comments yet. Be the first to comment!</p>
+                              <p className="text-gray-500 dark:text-gray-400 text-center py-2">No comments yet. Be the first to comment!</p>
                             )}
 
                             {/* Comment form */}

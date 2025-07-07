@@ -164,16 +164,16 @@ const QuestionStormPage: React.FC = () => {
   };
 
   return (
-    <div>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
       <PageHeader
         title="Question Storm"
         description="Ask or answer questions, and see responses in real-time."
-        icon={<MessageSquare className="h-6 w-6 text-primary-600" />}
+        icon={<MessageSquare className="h-6 w-6 text-primary-600 dark:text-primary-400" />}
       />
 
       {/* Ask a question form */}
-      <div className="card p-6 mb-8">
-        <h2 className="text-xl font-semibold mb-4">Ask a Question</h2>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-8">
+        <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Ask a Question</h2>
         <form onSubmit={handleSubmitQuestion}>
           <div className="mb-4">
             <label htmlFor="question" className="label">
@@ -202,7 +202,7 @@ const QuestionStormPage: React.FC = () => {
 
       {/* Questions list */}
       <div className="space-y-6">
-        <h2 className="text-xl font-semibold mb-4">Recent Questions</h2>
+        <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Recent Questions</h2>
         
         {loading ? (
           <LoadingSpinner text="Loading questions..." />
@@ -215,41 +215,41 @@ const QuestionStormPage: React.FC = () => {
         ) : (
           <div className="space-y-6">
             {questions.map((question) => (
-              <div key={question.id} className="card overflow-visible">
+              <div key={question.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-visible">
                 <div
-                  className="p-4 cursor-pointer hover:bg-gray-50"
+                  className="p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                   onClick={() => toggleExpandQuestion(question.id)}
                 >
                   <div className="flex justify-between items-start">
                     <div>
-                      <h3 className="font-medium text-lg">{question.text}</h3>
-                      <p className="text-sm text-gray-500 mt-1">
+                      <h3 className="font-medium text-lg text-gray-900 dark:text-white">{question.text}</h3>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                         Asked by {question.authorName} • {new Date(question.createdAt).toLocaleDateString()}
                       </p>
                     </div>
-                    <div className="bg-primary-50 text-primary-700 rounded-full px-3 py-1 text-sm">
+                    <div className="bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 rounded-full px-3 py-1 text-sm">
                       {question.answerCount} {question.answerCount === 1 ? 'answer' : 'answers'}
                     </div>
                   </div>
                 </div>
 
                 {expandedQuestion === question.id && (
-                  <div className="border-t border-gray-200 p-4">
+                  <div className="border-t border-gray-200 dark:border-gray-600 p-4">
                     {/* Answers list */}
                     <div className="space-y-4 mb-4">
                       {answers[question.id]?.length > 0 ? (
                         answers[question.id].map((answer) => (
-                          <div key={answer.id} className="bg-gray-50 rounded-lg p-3">
-                            <p>{answer.text}</p>
+                          <div key={answer.id} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+                            <p className="text-gray-900 dark:text-gray-100">{answer.text}</p>
                             <div className="flex justify-between items-center mt-2">
-                              <div className="text-sm text-gray-500">
+                              <div className="text-sm text-gray-500 dark:text-gray-400">
                                 {answer.anonymous ? 'Anonymous' : answer.authorName} • {new Date(answer.createdAt).toLocaleDateString()}
                               </div>
                               <div className="flex space-x-3">
                                 <button
                                   onClick={() => handleReaction(answer.id, '🔥')}
                                   className={`flex items-center space-x-1 text-sm ${
-                                    hasUserReacted(answer, '🔥') ? 'text-orange-500' : 'text-gray-500'
+                                    hasUserReacted(answer, '🔥') ? 'text-orange-500' : 'text-gray-500 dark:text-gray-400'
                                   }`}
                                   disabled={!currentUser}
                                 >
@@ -259,7 +259,7 @@ const QuestionStormPage: React.FC = () => {
                                 <button
                                   onClick={() => handleReaction(answer.id, '❤️')}
                                   className={`flex items-center space-x-1 text-sm ${
-                                    hasUserReacted(answer, '❤️') ? 'text-red-500' : 'text-gray-500'
+                                    hasUserReacted(answer, '❤️') ? 'text-red-500' : 'text-gray-500 dark:text-gray-400'
                                   }`}
                                   disabled={!currentUser}
                                 >
@@ -269,7 +269,7 @@ const QuestionStormPage: React.FC = () => {
                                 <button
                                   onClick={() => handleReaction(answer.id, '😆')}
                                   className={`flex items-center space-x-1 text-sm ${
-                                    hasUserReacted(answer, '😆') ? 'text-yellow-500' : 'text-gray-500'
+                                    hasUserReacted(answer, '😆') ? 'text-yellow-500' : 'text-gray-500 dark:text-gray-400'
                                   }`}
                                   disabled={!currentUser}
                                 >
@@ -281,7 +281,7 @@ const QuestionStormPage: React.FC = () => {
                           </div>
                         ))
                       ) : (
-                        <p className="text-gray-500 text-center py-4">No answers yet. Be the first to answer!</p>
+                        <p className="text-gray-500 dark:text-gray-400 text-center py-4">No answers yet. Be the first to answer!</p>
                       )}
                     </div>
 
@@ -305,7 +305,7 @@ const QuestionStormPage: React.FC = () => {
                               <label className="inline-flex items-center">
                                 <input
                                   type="checkbox"
-                                  className="rounded border-gray-300 text-primary-600 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50"
+                                  className="rounded border-gray-300 dark:border-gray-600 text-primary-600 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50 dark:bg-gray-700"
                                   checked={!!anonymous[question.id]}
                                   onChange={(e) =>
                                     setAnonymous((prev) => ({
@@ -314,7 +314,7 @@ const QuestionStormPage: React.FC = () => {
                                     }))
                                   }
                                 />
-                                <span className="ml-2 text-sm text-gray-600">
+                                <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">
                                   Answer anonymously
                                 </span>
                               </label>
@@ -330,9 +330,9 @@ const QuestionStormPage: React.FC = () => {
                         </div>
                       </div>
                     ) : (
-                      <div className="text-center py-4 bg-gray-50 rounded-lg">
-                        <p className="text-gray-600 mb-2">Sign in to answer this question</p>
-                        <a href="/login" className="text-primary-600 font-medium">
+                      <div className="text-center py-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                        <p className="text-gray-600 dark:text-gray-300 mb-2">Sign in to answer this question</p>
+                        <a href="/login" className="text-primary-600 dark:text-primary-400 font-medium">
                           Sign In
                         </a>
                       </div>

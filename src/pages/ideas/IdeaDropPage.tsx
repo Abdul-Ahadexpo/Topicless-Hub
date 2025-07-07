@@ -141,29 +141,29 @@ const IdeaDropPage: React.FC = () => {
   };
   
   return (
-    <div>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
       <PageHeader
         title="Daily Idea Drop"
         description="Share one creative idea per day and get feedback from the community."
-        icon={<LightbulbIcon className="h-6 w-6 text-accent-600" />}
+        icon={<LightbulbIcon className="h-6 w-6 text-accent-600 dark:text-accent-400" />}
       />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         {/* Idea Submission */}
         <div className="md:col-span-2">
-          <div className="card p-6">
-            <h2 className="text-xl font-semibold mb-4">Share Your Daily Idea</h2>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Share Your Daily Idea</h2>
             {!currentUser ? (
-              <div className="text-center py-4 bg-gray-50 rounded-lg">
-                <p className="text-gray-600 mb-2">Sign in to share your idea</p>
-                <a href="/login" className="text-accent-600 font-medium">
+              <div className="text-center py-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <p className="text-gray-600 dark:text-gray-300 mb-2">Sign in to share your idea</p>
+                <a href="/login" className="text-accent-600 dark:text-accent-400 font-medium">
                   Sign In
                 </a>
               </div>
             ) : hasSubmittedToday ? (
-              <div className="text-center py-4 bg-gray-50 rounded-lg">
-                <p className="text-gray-600">You've already shared your idea today!</p>
-                <p className="text-gray-500 text-sm mt-2">Come back tomorrow for a new idea.</p>
+              <div className="text-center py-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <p className="text-gray-600 dark:text-gray-300">You've already shared your idea today!</p>
+                <p className="text-gray-500 dark:text-gray-400 text-sm mt-2">Come back tomorrow for a new idea.</p>
               </div>
             ) : (
               <form onSubmit={handleSubmitIdea}>
@@ -178,7 +178,7 @@ const IdeaDropPage: React.FC = () => {
                     placeholder="Share an innovative idea or creative thought..."
                     className="input h-24"
                   />
-                  <p className="text-sm text-gray-500 mt-1">You can submit one idea per day.</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">You can submit one idea per day.</p>
                 </div>
                 <div className="flex justify-end">
                   <button
@@ -197,8 +197,8 @@ const IdeaDropPage: React.FC = () => {
 
         {/* Leaderboard */}
         <div className="md:col-span-1">
-          <div className="card p-6">
-            <h2 className="text-xl font-semibold mb-4">Creativity Leaders</h2>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Creativity Leaders</h2>
             {leaderboard.length > 0 ? (
               <div className="space-y-3">
                 {leaderboard.map((user, index) => (
@@ -211,42 +211,42 @@ const IdeaDropPage: React.FC = () => {
                       }`}>
                         {index + 1}
                       </div>
-                      <span className="ml-2 font-medium">{user.name}</span>
+                      <span className="ml-2 font-medium text-gray-900 dark:text-white">{user.name}</span>
                     </div>
-                    <div className="bg-accent-50 text-accent-700 px-2 py-1 rounded-md text-sm">
+                    <div className="bg-accent-50 dark:bg-accent-900/20 text-accent-700 dark:text-accent-300 px-2 py-1 rounded-md text-sm">
                       {user.score} pts
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-gray-500 text-center py-4">
+              <p className="text-gray-500 dark:text-gray-400 text-center py-4">
                 No creativity leaders yet. Be the first to share ideas!
               </p>
             )}
           </div>
 
           {/* Random Idea Generator */}
-          <div className="card p-6 mt-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 mt-4">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold">Surprise Me!</h2>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Surprise Me!</h2>
               <button
                 onClick={getRandomIdea}
                 disabled={ideas.length === 0}
-                className="text-accent-600 hover:text-accent-700"
+                className="text-accent-600 dark:text-accent-400 hover:text-accent-700 dark:hover:text-accent-300"
               >
                 <Shuffle size={18} />
               </button>
             </div>
             {randomIdea ? (
-              <div className="bg-accent-50 p-3 rounded-lg">
-                <p className="italic text-gray-700">{randomIdea.text}</p>
-                <p className="text-sm text-gray-500 mt-2">
+              <div className="bg-accent-50 dark:bg-accent-900/20 p-3 rounded-lg">
+                <p className="italic text-gray-700 dark:text-gray-300">{randomIdea.text}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
                   — {randomIdea.authorName}
                 </p>
               </div>
             ) : (
-              <p className="text-gray-500 text-center py-2 text-sm">
+              <p className="text-gray-500 dark:text-gray-400 text-center py-2 text-sm">
                 Click shuffle to see a random idea
               </p>
             )}
@@ -257,12 +257,12 @@ const IdeaDropPage: React.FC = () => {
       {/* Ideas Feed */}
       <div>
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">Community Ideas</h2>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Community Ideas</h2>
           <div>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as 'latest' | 'popular')}
-              className="bg-white border border-gray-300 rounded-md py-1 px-3 text-sm"
+              className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md py-1 px-3 text-sm text-gray-900 dark:text-white"
             >
               <option value="latest">Latest</option>
               <option value="popular">Most Popular</option>
@@ -287,17 +287,17 @@ const IdeaDropPage: React.FC = () => {
               const userThought = currentUser && idea.reactions?.['💭']?.[currentUser.uid];
               
               return (
-                <div key={idea.id} className="card p-4">
-                  <p className="text-lg">{idea.text}</p>
+                <div key={idea.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
+                  <p className="text-lg text-gray-900 dark:text-white">{idea.text}</p>
                   <div className="flex justify-between items-center mt-3">
-                    <div className="text-sm text-gray-600">
+                    <div className="text-sm text-gray-600 dark:text-gray-400">
                       {idea.authorName} • {new Date(idea.createdAt).toLocaleDateString()}
                     </div>
                     <div className="flex space-x-3">
                       <button
                         onClick={() => handleReaction(idea.id, '🔥')}
                         className={`flex items-center space-x-1 text-sm ${
-                          userFired ? 'text-orange-500' : 'text-gray-500'
+                          userFired ? 'text-orange-500' : 'text-gray-500 dark:text-gray-400'
                         }`}
                         disabled={!currentUser}
                         title="Fire idea"
@@ -308,7 +308,7 @@ const IdeaDropPage: React.FC = () => {
                       <button
                         onClick={() => handleReaction(idea.id, '💭')}
                         className={`flex items-center space-x-1 text-sm ${
-                          userThought ? 'text-blue-500' : 'text-gray-500'
+                          userThought ? 'text-blue-500' : 'text-gray-500 dark:text-gray-400'
                         }`}
                         disabled={!currentUser}
                         title="Thought-provoking"
