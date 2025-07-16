@@ -147,6 +147,20 @@ const HomePage: React.FC = () => {
                         />
                       </div>
                     )}
+                    
+                    {/* Image/GIF */}
+                    {post.imageUrl && (
+                      <div className="mb-4">
+                        <img
+                          src={post.imageUrl}
+                          alt={post.title}
+                          className="w-full h-auto rounded-lg border border-gray-200 dark:border-gray-600"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = 'none';
+                          }}
+                        />
+                      </div>
+                    )}
                   </div>
                 );
               })}

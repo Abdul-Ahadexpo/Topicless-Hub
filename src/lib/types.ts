@@ -16,6 +16,7 @@ export interface AdminPost {
   title: string;
   content: string;
   youtubeUrl?: string;
+  imageUrl?: string;
   authorId: string;
   authorName: string;
   createdAt: number;

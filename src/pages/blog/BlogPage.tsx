@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ref, onValue } from 'firebase/database';
-import { BookOpen, Youtube, Star, Calendar, User } from 'lucide-react';
+import { BookOpen, Youtube, Star, Calendar, User, Image as ImageIcon } from 'lucide-react';
 import { db } from '../../lib/firebase';
 import PageHeader from '../../components/ui/PageHeader';
 import EmptyState from '../../components/ui/EmptyState';
@@ -152,6 +152,24 @@ const BlogPage: React.FC = () => {
                           />
                         </div>
                       )}
+                    </div>
+                  )}
+
+                  {/* Image/GIF */}
+                  {post.imageUrl && (
+                    <div className="mb-4">
+                      <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 mb-3">
+                        <ImageIcon size={16} className="mr-2 text-blue-500" />
+                        Featured Image
+                      </div>
+                      <img
+                        src={post.imageUrl}
+                        alt={post.title}
+                        className="w-full h-auto rounded-lg border border-gray-200 dark:border-gray-600"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = 'none';
+                        }}
+                      />
                     </div>
                   )}
 
