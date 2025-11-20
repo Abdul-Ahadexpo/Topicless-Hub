@@ -158,6 +158,41 @@
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
     transition-duration: 200ms;
   }
+
+  /* Kawaii Animations */
+  .kawaii-bounce {
+    animation: kawaiiBounce 2s ease-in-out infinite;
+  }
+
+  .kawaii-float {
+    animation: kawaiiFloat 3s ease-in-out infinite;
+  }
+
+  .kawaii-wiggle {
+    animation: kawaiiWiggle 2.5s ease-in-out infinite;
+  }
+
+  .kawaii-pulse {
+    animation: kawaiiPulse 2s ease-in-out infinite;
+  }
+
+  .kawaii-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .kawaii-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  }
+
+  .kawaii-hover:hover {
+    transform: scale(1.02);
+  }
+
+  /* Auto-fit grid for uniform card heights */
+  .auto-rows-fr {
+    grid-auto-rows: 1fr;
+  }
 }
 
 /* Mobile-specific improvements */
@@ -211,4 +246,46 @@
 @keyframes slideUp {
   0% { transform: translateY(10px); opacity: 0; }
   100% { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes kawaiiBounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes kawaiiFloat {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes kawaiiWiggle {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(1deg);
+  }
+  75% {
+    transform: rotate(-1deg);
+  }
+}
+
+@keyframes kawaiiPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
 }

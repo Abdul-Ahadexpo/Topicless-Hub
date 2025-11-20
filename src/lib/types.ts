@@ -21,6 +21,13 @@ export interface AdminPost {
   authorName: string;
   createdAt: number;
   featured: boolean;
+  imageUrl?: string;
+}
+
+// Subscriber count type
+export interface SubscriberCount {
+  count: number;
+  updatedAt: number;
 }
 
 // Question Storm types

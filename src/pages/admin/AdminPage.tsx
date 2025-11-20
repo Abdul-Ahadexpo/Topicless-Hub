@@ -1,17 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { ref, set, onValue, remove } from 'firebase/database';
+import { ref, set, onValue, remove, update } from 'firebase/database';
 import { v4 as uuidv4 } from 'uuid';
-import { Shield, Plus, X, Trash2, Star, Youtube, Upload, Image as ImageIcon } from 'lucide-react';
+import { Shield, Plus, X, Trash2, Star, Youtube, Upload, Image as ImageIcon, Edit, Users } from 'lucide-react';
 import { db } from '../../lib/firebase';
 import PageHeader from '../../components/ui/PageHeader';
 import EmptyState from '../../components/ui/EmptyState';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
-import { AdminPost } from '../../lib/types';
+import { AdminPost, SubscriberCount } from '../../lib/types';
 
 const AdminPage: React.FC = () => {
   const [posts, setPosts] = useState<AdminPost[]>([]);
+  const [subscriberCount, setSubscriberCount] = useState<SubscriberCount>({ count: 0, updatedAt: Date.now() });
   const [loading, setLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [editingPost, setEditingPost] = useState<AdminPost | null>(null);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [youtubeUrl, setYoutubeUrl] = useState('');
@@ -20,6 +22,7 @@ const AdminPage: React.FC = () => {
   const [imagePreview, setImagePreview] = useState<string>('');
   const [uploading, setUploading] = useState(false);
   const [uploadType, setUploadType] = useState<'youtube' | 'image'>('youtube');
+  const [newSubscriberCount, setNewSubscriberCount] = useState('');
 
   const IMGBB_API_KEY = '2a78816b4b5cc1c4c3b18f8f258eda60';
 
@@ -35,6 +38,19 @@ const AdminPage: React.FC = () => {
         setPosts([]);
       }
       setLoading(false);
+    });
+
+    // Fetch subscriber count
+    const subscriberRef = ref(db, 'subscriber_count');
+    onValue(subscriberRef, (snapshot) => {
+      if (snapshot.exists()) {
+        setSubscriberCount(snapshot.val());
+        setNewSubscriberCount(snapshot.val().count.toString());
+      } else {
+        const defaultCount = { count: 0, updatedAt: Date.now() };
+        setSubscriberCount(defaultCount);
+        setNewSubscriberCount('0');
+      }
     });
 
     return () => unsubscribe();
@@ -76,6 +92,40 @@ const AdminPage: React.FC = () => {
     return data.data.url;
   };
 
+  const handleEditPost = (post: AdminPost) => {
+    setEditingPost(post);
+    setTitle(post.title);
+    setContent(post.content);
+    setYoutubeUrl(post.youtubeUrl || '');
+    setFeatured(post.featured);
+    setUploadType(post.youtubeUrl ? 'youtube' : 'image');
+    if (post.imageUrl) {
+      setImagePreview(post.imageUrl);
+    }
+    setShowCreateForm(true);
+  };
+
+  const handleUpdateSubscriberCount = async () => {
+    try {
+      const count = parseInt(newSubscriberCount);
+      if (isNaN(count) || count < 0) {
+        alert('Please enter a valid number');
+        return;
+      }
+      
+      const subscriberData: SubscriberCount = {
+        count,
+        updatedAt: Date.now(),
+      };
+      
+      await set(ref(db, 'subscriber_count'), subscriberData);
+      alert('Subscriber count updated successfully!');
+    } catch (error) {
+      console.error('Error updating subscriber count:', error);
+      alert('Failed to update subscriber count');
+    }
+  };
+
   const handleCreatePost = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -84,28 +134,50 @@ const AdminPage: React.FC = () => {
     try {
       setUploading(true);
       
-      const postId = uuidv4();
-      const postData: AdminPost = {
-        id: postId,
+      const postId = editingPost ? editingPost.id : uuidv4();
+      let postData: Partial<AdminPost> = {
         title: title.trim(),
         content: content.trim(),
-        authorId: 'admin',
-        authorName: 'Admin',
-        createdAt: Date.now(),
         featured,
       };
+      
+      if (!editingPost) {
+        postData = {
+          ...postData,
+          id: postId,
+          authorId: 'admin',
+          authorName: 'Admin',
+          createdAt: Date.now(),
+        };
+      }
 
       // Handle media upload based on type
       if (uploadType === 'youtube' && youtubeUrl.trim()) {
-        postData.youtubeUrl = youtubeUrl.trim();
+        (postData as AdminPost).youtubeUrl = youtubeUrl.trim();
+        // Remove imageUrl if switching to YouTube
+        if (editingPost && editingPost.imageUrl) {
+          (postData as any).imageUrl = null;
+        }
       } else if (uploadType === 'image' && selectedImage) {
         const imageUrl = await uploadImageToImgBB(selectedImage);
-        postData.imageUrl = imageUrl;
+        (postData as AdminPost).imageUrl = imageUrl;
+        // Remove youtubeUrl if switching to image
+        if (editingPost && editingPost.youtubeUrl) {
+          (postData as any).youtubeUrl = null;
+        }
+      } else if (uploadType === 'image' && imagePreview && editingPost) {
+        // Keep existing image
+        (postData as AdminPost).imageUrl = editingPost.imageUrl;
       }
       
-      await set(ref(db, `admin_posts/${postId}`), postData);
+      if (editingPost) {
+        await update(ref(db, `admin_posts/${postId}`), postData);
+      } else {
+        await set(ref(db, `admin_posts/${postId}`), postData);
+      }
       
       // Reset form
+      setEditingPost(null);
       setTitle('');
       setContent('');
       setYoutubeUrl('');
@@ -115,8 +187,8 @@ const AdminPage: React.FC = () => {
       setUploadType('youtube');
       setShowCreateForm(false);
     } catch (error) {
-      console.error('Error creating post:', error);
-      alert('Failed to create post. Please try again.');
+      console.error('Error saving post:', error);
+      alert('Failed to save post. Please try again.');
     } finally {
       setUploading(false);
     }
@@ -141,27 +213,72 @@ const AdminPage: React.FC = () => {
   return (
     <div>
       <PageHeader
-        title="Admin Panel"
-        description="Manage admin posts and announcements"
+        title="Admin Panel 🎀"
+        description="Manage admin posts, subscriber count, and announcements"
         icon={<Shield className="h-6 w-6 text-accent-600 dark:text-accent-400" />}
       />
+
+      {/* Subscriber Count Management */}
+      <div className="mb-8 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 kawaii-card">
+        <h2 className="text-xl font-semibold mb-4 dark:text-white flex items-center kawaii-wiggle">
+          <Users className="mr-2" size={20} />
+          Subscriber Count Management
+        </h2>
+        <div className="flex items-center space-x-4">
+          <div className="flex-1">
+            <label htmlFor="subscriberCount" className="label">
+              Current Count: {subscriberCount.count.toLocaleString()}
+            </label>
+            <input
+              id="subscriberCount"
+              type="number"
+              value={newSubscriberCount}
+              onChange={(e) => setNewSubscriberCount(e.target.value)}
+              placeholder="Enter new subscriber count"
+              className="input"
+              min="0"
+            />
+          </div>
+          <button
+            onClick={handleUpdateSubscriberCount}
+            className="btn btn-secondary kawaii-bounce"
+          >
+            Update Count
+          </button>
+        </div>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+          Last updated: {new Date(subscriberCount.updatedAt).toLocaleString()}
+        </p>
+      </div>
 
       {/* Create post button/form */}
       <div className="mb-8">
         {!showCreateForm ? (
           <button
             onClick={() => setShowCreateForm(true)}
-            className="btn btn-primary flex items-center"
+            className="btn btn-primary flex items-center kawaii-bounce"
           >
             <Plus size={18} className="mr-2" /> 
-            Create New Post
+            Create New Post ✨
           </button>
         ) : (
-          <div className="card p-6 animate-fade-in">
+          <div className="card p-6 animate-fade-in kawaii-card">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold dark:text-white">Create New Admin Post</h2>
+              <h2 className="text-xl font-semibold dark:text-white kawaii-wiggle">
+                {editingPost ? 'Edit Admin Post 📝' : 'Create New Admin Post ✨'}
+              </h2>
               <button
-                onClick={() => setShowCreateForm(false)}
+                onClick={() => {
+                  setShowCreateForm(false);
+                  setEditingPost(null);
+                  setTitle('');
+                  setContent('');
+                  setYoutubeUrl('');
+                  setSelectedImage(null);
+                  setImagePreview('');
+                  setFeatured(false);
+                  setUploadType('youtube');
+                }}
                 className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
               >
                 <X size={20} />
@@ -316,7 +433,17 @@ const AdminPage: React.FC = () => {
               <div className="flex justify-end space-x-3">
                 <button
                   type="button"
-                  onClick={() => setShowCreateForm(false)}
+                  onClick={() => {
+                    setShowCreateForm(false);
+                    setEditingPost(null);
+                    setTitle('');
+                    setContent('');
+                    setYoutubeUrl('');
+                    setSelectedImage(null);
+                    setImagePreview('');
+                    setFeatured(false);
+                    setUploadType('youtube');
+                  }}
                   className="btn btn-outline"
                   disabled={uploading}
                 >
@@ -324,16 +451,16 @@ const AdminPage: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="btn btn-primary"
+                  className="btn btn-primary kawaii-bounce"
                   disabled={!title.trim() || !content.trim() || uploading}
                 >
                   {uploading ? (
                     <>
                       <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                      Creating...
+                      {editingPost ? 'Updating...' : 'Creating...'}
                     </>
                   ) : (
-                    'Create Post'
+                    editingPost ? 'Update Post' : 'Create Post'
                   )}
                 </button>
               </div>
@@ -344,7 +471,7 @@ const AdminPage: React.FC = () => {
 
       {/* Posts list */}
       <div className="space-y-6">
-        <h2 className="text-xl font-semibold mb-4 dark:text-white">Admin Posts</h2>
+        <h2 className="text-xl font-semibold mb-4 dark:text-white kawaii-wiggle">Admin Posts 📚</h2>
         
         {loading ? (
           <LoadingSpinner text="Loading posts..." />
@@ -360,7 +487,7 @@ const AdminPage: React.FC = () => {
               const youtubeId = post.youtubeUrl ? extractYouTubeId(post.youtubeUrl) : null;
               
               return (
-                <div key={post.id} className="card p-6">
+                <div key={post.id} className="card p-6 kawaii-card">
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex-1">
                       <div className="flex items-center mb-2">
@@ -416,8 +543,15 @@ const AdminPage: React.FC = () => {
                       )}
                     </div>
                     <button
+                      onClick={() => handleEditPost(post)}
+                      className="text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 ml-2 kawaii-bounce"
+                      title="Edit post"
+                    >
+                      <Edit size={18} />
+                    </button>
+                    <button
                       onClick={() => handleDeletePost(post.id)}
-                      className="text-gray-400 hover:text-error-600 dark:hover:text-error-400 ml-4"
+                      className="text-gray-400 hover:text-error-600 dark:hover:text-error-400 ml-2"
                       title="Delete post"
                     >
                       <Trash2 size={18} />

@@ -6,11 +6,18 @@ import { db } from '../lib/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { AdminPost } from '../lib/types';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
+import ImageModal from '../components/ui/ImageModal';
+import SubscriberCount from '../components/ui/SubscriberCount';
 
 const HomePage: React.FC = () => {
   const { currentUser } = useAuth();
   const [adminPosts, setAdminPosts] = useState<AdminPost[]>([]);
   const [loading, setLoading] = useState(true);
+  const [imageModal, setImageModal] = useState<{isOpen: boolean, imageUrl: string, title: string}>({
+    isOpen: false,
+    imageUrl: '',
+    title: ''
+  });
 
   useEffect(() => {
     // Fetch admin posts
@@ -33,6 +40,14 @@ const HomePage: React.FC = () => {
     const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
     const match = url.match(regex);
     return match ? match[1] : null;
+  };
+
+  const openImageModal = (imageUrl: string, title: string) => {
+    setImageModal({ isOpen: true, imageUrl, title });
+  };
+
+  const closeImageModal = () => {
+    setImageModal({ isOpen: false, imageUrl: '', title: '' });
   };
 
   const features = [
@@ -74,9 +89,9 @@ const HomePage: React.FC = () => {
     <div className="space-y-8 md:space-y-12 min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
       {/* Hero Section - Only show if user is not logged in */}
       {!currentUser && (
-        <section className="bg-gradient-to-r from-primary-600 to-primary-800 dark:from-primary-700 dark:to-primary-900 rounded-2xl p-6 md:p-12 text-white">
+        <section className="bg-gradient-to-r from-primary-600 to-primary-800 dark:from-primary-700 dark:to-primary-900 rounded-2xl p-6 md:p-12 text-white kawaii-float">
           <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6">
+            <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6 kawaii-wiggle">
               Topicless Hub: Share, Vote & Connect
             </h1>
             <p className="text-base md:text-xl opacity-90 mb-6 md:mb-8">
@@ -84,13 +99,18 @@ const HomePage: React.FC = () => {
             </p>
             <Link
               to="/login"
-              className="btn bg-white text-primary-700 hover:bg-gray-100 px-4 md:px-6 py-2 md:py-3 text-base md:text-lg"
+              className="btn bg-white text-primary-700 hover:bg-gray-100 px-4 md:px-6 py-2 md:py-3 text-base md:text-lg kawaii-bounce"
             >
               Get Started
             </Link>
           </div>
         </section>
       )}
+
+      {/* Subscriber Count */}
+      <section className="mb-8">
+        <SubscriberCount />
+      </section>
 
       {/* Admin Posts Section */}
       {adminPosts.length > 0 && (
@@ -111,15 +131,15 @@ const HomePage: React.FC = () => {
           {loading ? (
             <LoadingSpinner text="Loading updates..." />
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6 auto-rows-fr">
               {adminPosts.map((post) => {
                 const youtubeId = post.youtubeUrl ? extractYouTubeId(post.youtubeUrl) : null;
                 
                 return (
-                  <div key={post.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 md:p-6 hover:shadow-md transition-all duration-200">
+                  <div key={post.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 md:p-6 hover:shadow-md transition-all duration-200 flex flex-col kawaii-card">
                     <div className="flex items-start justify-between mb-3 md:mb-4">
                       <div className="min-w-0 flex-1">
-                        <h3 className="text-lg md:text-xl font-semibold mb-1 md:mb-2 dark:text-white line-clamp-2">{post.title}</h3>
+                        <h3 className="text-lg md:text-xl font-semibold mb-1 md:mb-2 dark:text-white line-clamp-2 kawaii-wiggle">{post.title}</h3>
                         <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400">
                           By {post.authorName} • {new Date(post.createdAt).toLocaleDateString()}
                         </p>
@@ -131,12 +151,13 @@ const HomePage: React.FC = () => {
                       )}
                     </div>
                     
-                    <div className="prose prose-sm md:prose max-w-none mb-4">
+                    <div className="prose prose-sm md:prose max-w-none mb-4 flex-grow">
                       <p className="text-sm md:text-base text-gray-700 dark:text-gray-300 line-clamp-3">{post.content}</p>
                     </div>
                     
+                    <div className="mt-auto">
                     {youtubeId && (
-                      <div className="relative w-full rounded-lg overflow-hidden" style={{ paddingBottom: '56.25%' }}>
+                      <div className="relative w-full rounded-lg overflow-hidden mb-4" style={{ paddingBottom: '56.25%' }}>
                         <iframe
                           className="absolute top-0 left-0 w-full h-full"
                           src={`https://www.youtube.com/embed/${youtubeId}?autoplay=0&iv_load_policy=3&modestbranding=1&rel=0`}
@@ -151,16 +172,24 @@ const HomePage: React.FC = () => {
                     {/* Image/GIF */}
                     {post.imageUrl && (
                       <div className="mb-4">
-                        <img
-                          src={post.imageUrl}
-                          alt={post.title}
-                          className="w-full h-auto rounded-lg border border-gray-200 dark:border-gray-600"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).style.display = 'none';
-                          }}
-                        />
+                        <div className="relative group cursor-pointer kawaii-hover" onClick={() => openImageModal(post.imageUrl!, post.title)}>
+                          <img
+                            src={post.imageUrl}
+                            alt={post.title}
+                            className="w-full h-48 object-cover rounded-lg border border-gray-200 dark:border-gray-600 transition-transform duration-200 group-hover:scale-105"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).style.display = 'none';
+                            }}
+                          />
+                          <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 rounded-lg flex items-center justify-center">
+                            <span className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200 font-medium">
+                              Click to view full size
+                            </span>
+                          </div>
+                        </div>
                       </div>
                     )}
+                    </div>
                   </div>
                 );
               })}
@@ -185,10 +214,10 @@ const HomePage: React.FC = () => {
             <Link
               key={feature.name}
               to={feature.path}
-              className={`p-4 md:p-6 rounded-lg border ${feature.borderColor} ${feature.color} hover:shadow-md transition-all duration-200`}
+              className={`p-4 md:p-6 rounded-lg border ${feature.borderColor} ${feature.color} hover:shadow-md transition-all duration-200 kawaii-card kawaii-hover`}
             >
               <div className="flex items-start">
-                <div className="bg-white dark:bg-gray-800 p-2 md:p-3 rounded-lg mr-3 md:mr-4 flex-shrink-0">
+                <div className="bg-white dark:bg-gray-800 p-2 md:p-3 rounded-lg mr-3 md:mr-4 flex-shrink-0 kawaii-bounce">
                   {feature.icon}
                 </div>
                 <div className="min-w-0 flex-1">
@@ -203,12 +232,12 @@ const HomePage: React.FC = () => {
 
       {/* CTA Section - Only show if user is not logged in */}
       {!currentUser && (
-        <section className="bg-gray-100 dark:bg-gray-800 rounded-lg p-6 md:p-8 text-center">
+        <section className="bg-gray-100 dark:bg-gray-800 rounded-lg p-6 md:p-8 text-center kawaii-float">
           <h2 className="text-xl md:text-2xl font-bold mb-2 md:mb-4 dark:text-white">Ready to Join the Conversation?</h2>
           <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 mb-4 md:mb-6 max-w-2xl mx-auto px-4">
             Sign up now to start asking questions, creating polls, sharing ideas, and engaging with our community.
           </p>
-          <Link to="/login" className="btn btn-primary px-4 md:px-6 py-2 md:py-3">
+          <Link to="/login" className="btn btn-primary px-4 md:px-6 py-2 md:py-3 kawaii-bounce">
             Sign Up Now
           </Link>
         </section>
@@ -216,18 +245,25 @@ const HomePage: React.FC = () => {
 
       {/* Welcome back section for logged in users */}
       {currentUser && (
-        <section className="bg-gradient-to-r from-primary-50 to-secondary-50 dark:from-primary-900/20 dark:to-secondary-900/20 rounded-lg p-6 md:p-8 text-center border border-primary-200 dark:border-primary-700">
+        <section className="bg-gradient-to-r from-primary-50 to-secondary-50 dark:from-primary-900/20 dark:to-secondary-900/20 rounded-lg p-6 md:p-8 text-center border border-primary-200 dark:border-primary-700 kawaii-float">
           <h2 className="text-xl md:text-2xl font-bold mb-2 md:mb-4 dark:text-white">
             Welcome back, {currentUser.displayName || 'User'}!
           </h2>
           <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 mb-4 md:mb-6">
             Ready to continue exploring and sharing with the community?
           </p>
-          <Link to="/questions" className="btn btn-primary px-4 md:px-6 py-2 md:py-3">
+          <Link to="/questions" className="btn btn-primary px-4 md:px-6 py-2 md:py-3 kawaii-bounce">
             Start Exploring
           </Link>
         </section>
       )}
+
+      <ImageModal
+        isOpen={imageModal.isOpen}
+        onClose={closeImageModal}
+        imageUrl={imageModal.imageUrl}
+        title={imageModal.title}
+      />
     </div>
   );
 };
