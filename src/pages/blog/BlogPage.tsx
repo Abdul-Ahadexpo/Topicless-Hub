@@ -181,7 +181,7 @@ const BlogPage: React.FC = () => {
                         <img
                           src={post.imageUrl}
                           alt={post.title}
-                          className="w-full h-48 object-cover rounded-lg border border-gray-200 dark:border-gray-600 transition-transform duration-200 group-hover:scale-105"
+                          className="w-full h-52 object-cover rounded-lg border border-gray-200 dark:border-gray-600 transition-transform duration-200 group-hover:scale-105"
                           onError={(e) => {
                             (e.target as HTMLImageElement).style.display = 'none';
                           }}
